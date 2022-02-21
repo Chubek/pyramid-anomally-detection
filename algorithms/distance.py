@@ -1,4 +1,4 @@
-from scipy.spatial.distance import  euclidean, minkowski, mahalanobis, cosine, jaccard
+from scipy.spatial.distance import euclidean, minkowski, mahalanobis, cosine, jaccard
 from typing import Callable
 
 

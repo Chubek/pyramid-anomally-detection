@@ -1,6 +1,7 @@
 from algorithms.simple import distance_to_all_points, distance_to_nearest_neighbor, distance_to_k_nearest_neighbor
 import numpy as np
 from scipy.spatial.distance import euclidean
+from copy import deepcopy
 
 
 def test_knn():
@@ -56,3 +57,16 @@ def test_distances_to_nearest_k_neighbors():
 
     print(max_)
     print(return_df.head())
+
+
+def test_concept():
+    a = [1, 2, 3]
+    b = None
+
+    aabb = {"a": a, "b": b}
+
+    def inner():
+        aabb['b'] = deepcopy(aabb['a'])
+        aabb['a'] = []
+    inner()
+    print("\n", aabb)

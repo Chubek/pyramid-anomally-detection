@@ -1,13 +1,13 @@
 import numpy as np
 from os import urandom
 from .dtype import KMeansHolder
-from typing import List, Callable
+from typing import List, Callable, Tuple
 from .distance import return_distance
 from copy import deepcopy
 
 
 def select_random_centroids(df: np.array, k: int) -> np.array:
-    np.random.seed(int("".join([str(int(c)) for c in urandom(8)])))
+    np.random.seed(int("".join([str(int(c)) for c in urandom(2)])))
 
     centroids = df[np.random.randint(0, len(df), k)]
 
@@ -29,7 +29,9 @@ def check_tolerance(prev: List[KMeansHolder], current: List[KMeansHolder], tol: 
     return np.sum((prev_ - curr_) ** 2) <= tol
 
 
-def k_means_clustering(df: np.array, k: int, distance_name: str, num_iter=1000, minowski_norm=2, tol=1e-3) -> List[KMeansHolder]:
+def k_means_clustering(df: np.array, k: int, distance_name: str, num_iter=1000,
+                                                  minowski_norm=2, tol=1e-3) -> Tuple[List, List]:
+
     distance_func = return_distance(distance_name)
 
     match distance_name:
@@ -56,7 +58,7 @@ def k_means_clustering(df: np.array, k: int, distance_name: str, num_iter=1000, 
 
         argmin_ = get_nearest_index(points, point, head['dist_func'])
 
-        head['clusters_current'][argmin_].corr_cluster = head['clusters_current'][argmin_].corr_cluster.append(
+        head['clusters_current'][argmin_].corr_cluster = np.append(
             head['clusters_current'][argmin_].corr_cluster, point)
         head['clusters_current'][argmin_].update_means()
 
@@ -78,4 +80,5 @@ def k_means_clustering(df: np.array, k: int, distance_name: str, num_iter=1000, 
 
         reset_clusters()
 
-    return head['clusters_prev']
+    return [c.centroid.tolist() for c in head['clusters_prev']], [c.corr_cluster.tolist() for c in
+                                                                  head['clusters_prev']]

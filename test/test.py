@@ -1,4 +1,5 @@
 from algorithms.simple import distance_to_all_points, distance_to_nearest_neighbor, distance_to_k_nearest_neighbor
+from algorithms.k_means import k_means_clustering
 import numpy as np
 from scipy.spatial.distance import euclidean
 from copy import deepcopy
@@ -70,3 +71,15 @@ def test_concept():
         aabb['a'] = []
     inner()
     print("\n", aabb)
+
+
+def test_kmeans():
+    dataset = np.array([1, 3, 5, 7, 100, 101, 200, 202, 205, 208, 210, 212, 214])
+
+    distance_name = "euclidean"
+
+    cent, cls = k_means_clustering(dataset, k=3, distance_name=distance_name)
+
+    print("\n", cent, "\n", cls)
+
+

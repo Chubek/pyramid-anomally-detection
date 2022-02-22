@@ -82,3 +82,26 @@ def k_means_clustering(df: np.array, k: int, distance_name: str, num_iter=1000,
 
     return [c.centroid.tolist() for c in head['clusters_prev']], [c.corr_cluster.tolist() for c in
                                                                   head['clusters_prev']]
+
+
+def initialize_gamma(df: np.array, c: int):
+    return np.random.uniform(0, 1, [c, df.shape[0]])
+
+
+def calculate_centroid(df: np.array, gammas: np.array, m: float):
+    gammas_ = gammas + m
+
+    cents = []
+
+    def cent_calc(x):
+        lam_calc = lambda x_: (x_ * gammas_) / np.sum(gammas_)
+
+        res = np.vectorize(lam_calc)(x)
+
+        cents.append(res)
+
+    np.vectorize(cent_calc)(df)
+
+    return np.array(cents)
+
+

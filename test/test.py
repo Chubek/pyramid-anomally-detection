@@ -69,6 +69,7 @@ def test_concept():
     def inner():
         aabb['b'] = deepcopy(aabb['a'])
         aabb['a'] = []
+
     inner()
     print("\n", aabb)
 
@@ -81,5 +82,33 @@ def test_kmeans():
     cent, cls = k_means_clustering(dataset, k=3, distance_name=distance_name)
 
     print("\n", cent, "\n", cls)
+
+
+PARTITION_MATRIX = np.array([
+    [1, 0, 1, 1, 0],
+    [0, 1, 0, 0, 1]
+])
+
+
+def initialize_gamma(df: np.array, c: int):
+    return np.random.uniform(0, 1, [c, df.shape[0]])
+
+
+def calculate_centroid(df: np.array, c: int, m=1.9e00):
+    gammas = initialize_gamma(df, c)
+    gammas_ = gammas + m
+
+    cents = []
+
+    def cent_calc(x):
+        lam_calc = lambda x_: (x_ * gammas_) / np.sum(gammas_)
+
+        res = np.vectorize(lam_calc)(x)
+
+        cents.append(res)
+
+    np.vectorize(cent_calc)(df)
+
+    return np.array(cents)
 
 

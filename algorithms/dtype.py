@@ -5,9 +5,9 @@ class KMeansHolder:
     centroid: np.array
     corr_cluster: np.array
 
-    def __init__(self, centroid, corr_cluster):
+    def __init__(self, centroid):
         self.centroid = centroid
-        self.corr_cluster = corr_cluster
+        self.corr_cluster = np.array([])
 
     def update_means(self):
-        self.centroid = np.mean(self.corr_cluster, axis=-1)
+        self.centroid = np.mean(self.corr_cluster)

@@ -26,12 +26,11 @@ def check_tolerance(prev: List[KMeansHolder], current: List[KMeansHolder], tol: 
     prev_ = np.array([pr.centroid for pr in prev])
     curr_ = np.array([curr.centroid for curr in current])
 
-    return np.sum((prev_ - curr_) ** 2) <= tol
+    return np.sum((curr_ - prev_) ** 2) <= tol
 
 
 def k_means_clustering(df: np.array, k: int, distance_name: str, num_iter=1000,
-                                                  minowski_norm=2, tol=1e-3) -> Tuple[List, List]:
-
+                       minowski_norm=2, tol=1e-3) -> Tuple[List, List]:
     distance_func = return_distance(distance_name)
 
     match distance_name:
@@ -44,8 +43,8 @@ def k_means_clustering(df: np.array, k: int, distance_name: str, num_iter=1000,
             dist_lambda = lambda x, y: distance_func(x, y)
 
     centroids = select_random_centroids(df, k)
-    clusters_current = [KMeansHolder(centroid=c, corr_cluster=np.array([])) for c in centroids]
-    clusters_prev = [KMeansHolder(centroid=c, corr_cluster=np.array([])) for c in centroids]
+    clusters_current = [KMeansHolder(centroid=c) for c in centroids]
+    clusters_prev = [KMeansHolder(centroid=c) for c in centroids]
 
     head = {
         "clusters_current": clusters_current,
@@ -84,24 +83,5 @@ def k_means_clustering(df: np.array, k: int, distance_name: str, num_iter=1000,
                                                                   head['clusters_prev']]
 
 
-def initialize_gamma(df: np.array, c: int):
-    return np.random.uniform(0, 1, [c, df.shape[0]])
-
-
-def calculate_centroid(df: np.array, gammas: np.array, m: float):
-    gammas_ = gammas + m
-
-    cents = []
-
-    def cent_calc(x):
-        lam_calc = lambda x_: (x_ * gammas_) / np.sum(gammas_)
-
-        res = np.vectorize(lam_calc)(x)
-
-        cents.append(res)
-
-    np.vectorize(cent_calc)(df)
-
-    return np.array(cents)
 
 

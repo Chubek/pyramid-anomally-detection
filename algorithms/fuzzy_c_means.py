@@ -1,5 +1,5 @@
 import numpy as np
-from typing import Callable
+from copy import deepcopy
 from .distance import return_distance
 
 
@@ -9,12 +9,12 @@ class FuzzyCMeans:
         self.c = c
         self.dist_func = self.get_dist_func(dist_func_name, minowski_norm)
         self.m = m
-        self.m2 = 2 / (m - 1)
+        self.m2 = 1 / (m - 1)
         self.tol = tol
         self.u = self.initialize_gamma()
         self.u_prev = self.initialize_gamma()
         self.centroids = self.initialize_calc_centroids()
-        self.ij_pair = np.array(np.sum([[(i, j) for i in range(len(df))] for j in range(c)], []))
+        self.ij_pair = np.array(sum([[(i, j) for j in range(c)] for i in range(len(df))], []))
 
     def get_dist_func(self, distance_name, minowski_norm):
         distance_func = return_distance(distance_name)
@@ -60,15 +60,23 @@ class FuzzyCMeans:
         cj = self.centroids[j]
         xi = self.df[i]
 
-        cks = self.centroids[self.centroids != cj]
+        cks = np.delete(deepcopy(self.centroids), j)
 
-        x_ck = lambda ck: self.dist_func(xi, cj) / self.dist_func(xi, ck)
+        summers = []
 
-        res = np.vectorize(x_ck)(cks)
+        def x_ck(ck):
+            num = self.dist_func(xi, cj)
 
-        res_op = 1 / res ** self.m2
+            denum = self.dist_func(xi, ck)
 
-        self.u[i, j] = res_op
+            if denum != 0:
+                summers.append(num / denum)
+
+        np.vectorize(x_ck)(cks)
+
+        res_op = 1 / (np.sum(summers, axis=-1) ** self.m2)
+
+        self.u[j, i] = res_op
 
     def iter(self):
         np.vectorize(self.update_u, signature="(n)->()")(self.ij_pair)
@@ -76,7 +84,7 @@ class FuzzyCMeans:
     def check_conv(self):
         return np.sum((self.u - self.u_prev) ** 2) <= self.tol
 
-    def __call__(self, num_iter=1000):
+    def __call__(self, num_iter=500):
         for i in range(num_iter):
             self.iter()
 

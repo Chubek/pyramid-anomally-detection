@@ -107,8 +107,9 @@ def test_cmeansfuzzy():
     ret = fuzzyc()
 
     for j in range(len(ret)):
-        plt.plot(dataset, ret[j, :], c=f"#{np.random.randint(0, 255)}00fc")
+        color = np.random.uniform(0, 1, 3).tolist()
+        plt.fill(dataset, ret[j, :], c=color)
 
-    plt.show()
+   # plt.show()
 
-    print(c)
+    print(len(ret))

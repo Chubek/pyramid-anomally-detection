@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import os
 from pathlib import Path
 import datetime
+import json
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Detect anomaly within a single feature")
@@ -43,8 +44,25 @@ if __name__ == "__main__":
                         default="%d-%HH-%MM-%s")
 
     parser.add_argument("--save-dir", metavar="-SVDIR", type=str, help="Save dir,"
-                                                                     " defaults to SAME (same place as df)",
+                                                                       " defaults to SAME (same place as df)",
                         default="SAME")
+
+    parser.add_argument("--knn-op", metavar="-KNNOP", type=str, help="Aggfunc for KNN"
+                                                                     " defaults to mean, can be median, sum, mean",
+                        choices=["sum", "mean", "median"],
+                        default="mean")
+
+    parser.add_argument("--knn-lambda", metavar="-KNLAM", type=str, help="Custom aggfunc for KNN"
+                                                                         " defaults to None (will be eval'd)",
+                        default="None")
+
+    parser.add_argument("--cluster-maxiter", metavar="-CI", type=int, help="Max iter for K-Means and C-Means,"
+                                                                           " defaults to 1000",
+                        default=1000)
+
+    parser.add_argument("--cluster-tol", metavar="-CT", type=float, help="Tolerance for K-Means and C-Means,"
+                                                                         " defaults to 1e-3",
+                        default=1e-3)
 
     args = parser.parse_args()
 
@@ -86,7 +104,75 @@ if __name__ == "__main__":
             os.makedirs(parent)
 
     save_path_csv = os.path.join(parent, f"{name}_{fmt_time}.csv")
+    save_path_json = os.path.join(parent, f"{name}_{fmt_time}.json")
     save_path_png = os.path.join(parent, f"{name}_{fmt_time}.png")
+
+    num_iter = args.cluster_maxiter
+    tol = args.cluster_tol
+
+    try:
+        knn_lam = eval(args.knn_lambda.strip())
+    except:
+        raise Exception("Invalid KNN lambda")
+
+    if knn_lam is None:
+        knn_lam = args.knn_op.strip()
 
     match args.operation.strip():
         case "Simple-Distance":
+            res, max_ = distance_to_all_points(series, name, minowski_norm=minowski_norm)
+
+            print(max_)
+
+            res.to_csv(save_path_csv)
+
+            print(f"Saved to {save_path_csv}")
+
+        case "Distance-to-NN":
+            res, max_ = distance_to_nearest_neighbor(series, name, minowski_norm=minowski_norm)
+
+            print(max_)
+
+            res.to_csv(save_path_csv)
+
+            print(f"Saved to {save_path_csv}")
+
+        case "Distance-to-KNN":
+            res, max_ = distance_to_k_nearest_neighbor(series, name, op=knn_lam, k=k, minowski_norm=minowski_norm)
+
+            print(max_)
+
+            res.to_csv(save_path_csv)
+
+            print(f"Saved to {save_path_csv}")
+
+        case "K-Means":
+            cents, classes = k_means_clustering(series, k=k, distance_name=name, num_iter=num_iter, tol=tol,
+                                                minowski_norm=minowski_norm)
+
+            res = []
+
+            for cent, cls in zip(cents, classes):
+                res.append({"centroid": cent.tolist(), classes: cls.tolist()})
+
+            with open(save_path_json, "w") as jw:
+                json.dump(res, jw)
+
+            print(f"Saved to {save_path_json}")
+
+        case "Fuzzy-C-Means":
+            fuzzyc = FuzzyCMeans(series, k, distance_name, minowski_norm=minowski_norm, tol=tol)
+
+            res = fuzzyc(num_iter=num_iter)
+
+            for j in range(len(res)):
+                np.random.seed(int("".join([str(int(c)) for c in os.urandom(2)])))
+                color = np.random.uniform(0, 1, 3).tolist()
+                plt.fill(series, res[j, :], c=color)
+
+            plt.savefig(save_path_png)
+
+            print(f"Saved to {save_path_png}")
+
+        case _:
+            raise ValueError("Wrong choice for operation!")

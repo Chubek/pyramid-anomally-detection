@@ -35,6 +35,11 @@ virtualenv, and you have currently activated it, set it to `python3`. Otherwise,
 If you wish to use a default value, use `DEFAULT` or `default`.
 
 Any questions, direct it at Chubak#7400 on Discord.
+                                     
+You can use the examples file to test things out.
+
+> Distance functions are from SciPy but the main algorithms are by me using np.vectorize, fastest possible!
+
 
 Et alors je bid a revioir!
  

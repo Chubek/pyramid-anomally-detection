@@ -15,4 +15,4 @@ def return_distance(name: str) -> Callable:
         case "jaccard":
             return jaccard
         case _:
-            raise ValueError("Wrong distance name!")
+            raise ValueError(f"Wrong distance name: {name}")

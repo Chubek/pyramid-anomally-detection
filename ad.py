@@ -105,6 +105,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+
     if not os.path.exists(args.dataset.strip()):
         raise Exception("Dataset does not exist!")
 
@@ -142,9 +143,9 @@ if __name__ == "__main__":
         if not os.path.exists(parent):
             os.makedirs(parent)
 
-    save_path_csv = os.path.join(parent, f"{name}_{fmt_time}.csv")
-    save_path_json = os.path.join(parent, f"{name}_{fmt_time}.json")
-    save_path_png = os.path.join(parent, f"{name}_{fmt_time}.png")
+    save_path_csv = os.path.join(parent, f"{name}_{args.operation.strip()}_{fmt_time}.csv")
+    save_path_json = os.path.join(parent, f"{name}_{args.operation.strip()}_{fmt_time}.json")
+    save_path_png = os.path.join(parent, f"{name}_{args.operation.strip()}_{fmt_time}.png")
 
     num_iter = args.cluster_maxiter
     tol = args.cluster_tol
@@ -159,7 +160,7 @@ if __name__ == "__main__":
 
     match args.operation.strip():
         case "Simple-Distance":
-            res, max_ = distance_to_all_points(series, name, minowski_norm=minowski_norm)
+            res, max_ = distance_to_all_points(series, distance_name, minowski_norm=minowski_norm)
 
             print(max_)
 
@@ -168,7 +169,7 @@ if __name__ == "__main__":
             print(f"Saved to {save_path_csv}")
 
         case "Distance-to-NN":
-            res, max_ = distance_to_nearest_neighbor(series, name, minowski_norm=minowski_norm)
+            res, max_ = distance_to_nearest_neighbor(series, distance_name, minowski_norm=minowski_norm)
 
             print(max_)
 
@@ -177,7 +178,7 @@ if __name__ == "__main__":
             print(f"Saved to {save_path_csv}")
 
         case "Distance-to-KNN":
-            res, max_ = distance_to_k_nearest_neighbor(series, name, op=knn_lam, k=k, minowski_norm=minowski_norm)
+            res, max_ = distance_to_k_nearest_neighbor(series, distance_name, op=knn_lam, k=k, minowski_norm=minowski_norm)
 
             print(max_)
 
@@ -186,7 +187,7 @@ if __name__ == "__main__":
             print(f"Saved to {save_path_csv}")
 
         case "K-Means":
-            cents, classes = k_means_clustering(series, k=k, distance_name=name, num_iter=num_iter, tol=tol,
+            cents, classes = k_means_clustering(series, k=k, distance_name=distance_name, num_iter=num_iter, tol=tol,
                                                 minowski_norm=minowski_norm)
 
             res = []

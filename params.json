@@ -1,8 +1,8 @@
 {
   "python_executable": "python3.10",
-  "dataset": "./df.csv",
+  "dataset": "./examples/df_test.csv",
   "operation" : "Simple-Distance",
-  "metric": "Metric D",
+  "metric": "Metric A2",
   "distfunc": "euclidean",
   "minowski_norm": 2,
   "dt-format": "DEFAULT",

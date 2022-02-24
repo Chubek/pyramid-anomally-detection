@@ -1,0 +1,16 @@
+{
+  "python_executable": "python3.10",
+  "dataset": "./df.csv",
+  "operation" : "Simple-Distance",
+  "metric": "Metric D",
+  "distfunc": "euclidean",
+  "minowski_norm": 2,
+  "dt-format": "DEFAULT",
+  "save_dir": "DEFAULT",
+  "knn_op": "median",
+  "knn_lambda": "DEFAULT",
+  "clusters": 3,
+  "cluster_maxiter": 1200,
+  "cluster_tol": 1e-4
+
+}

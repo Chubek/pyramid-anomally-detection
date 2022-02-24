@@ -2,14 +2,53 @@ import argparse
 from algorithms.simple import *
 from algorithms.k_means import k_means_clustering
 from algorithms.fuzzy_c_means import FuzzyCMeans
-import pandas
 import matplotlib.pyplot as plt
 import os
 from pathlib import Path
 import datetime
 import json
+import threading
+from time import time as t
+import time as tt
+import sys
+
+
+class PrintWorking(threading.Thread):
+    def __init__(self):
+        super().__init__()
+        self.ev = threading.Event()
+        self.daemon = True
+
+    def run(self):
+        t0 = t()
+        num_dots = 1
+        print("Began...")
+        while True:
+            t1 = t()
+
+            if (t1 - t0) % 4 == 0:
+                msg = "Wait" + "." * num_dots
+                sys.stdout.write("\r {:<70}".format(msg))
+                sys.stdout.flush()
+                tt.sleep(.1)
+
+                if num_dots < 4:
+                    num_dots += 1
+                else:
+                    num_dots = 1
+
+            if self.ev.is_set():
+                print("Done!")
+                break
+
+    def done(self):
+        self.ev.set()
+
 
 if __name__ == "__main__":
+    printer = PrintWorking()
+    printer.start()
+
     parser = argparse.ArgumentParser(description="Detect anomaly within a single feature")
 
     parser.add_argument("--dataset", metavar="-D", type=str, help="Path to dataset", required=True)
@@ -176,3 +215,5 @@ if __name__ == "__main__":
 
         case _:
             raise ValueError("Wrong choice for operation!")
+
+    printer.done()

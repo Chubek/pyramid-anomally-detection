@@ -5,6 +5,14 @@ import numpy as np
 from scipy.spatial.distance import euclidean
 from copy import deepcopy
 import matplotlib.pyplot as plt
+from ad import PrintWorking
+
+
+def test_printworking():
+    pr = PrintWorking()
+
+    pr.start()
+
 
 
 def test_knn():
